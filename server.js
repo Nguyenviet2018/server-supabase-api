@@ -35,4 +35,5 @@ app.get('/attendance', async (req, res) => {
     if (error) return res.status(400).json({ error: error.message });
     res.json(data);
 });
-app.listen(3000,'0.0.0.0', () => console.log('Server đang chạy tại http://localhost:3000'));
+//app.listen(3000,'0.0.0.0', () => console.log('Server đang chạy tại http://localhost:3000'));
+module.exports = app;
