@@ -1,0 +1,3 @@
+npm install express mysql2 jsonwebtoken bcryptjs cors.
+npm install jsonwebtoken
+npm install bcryptjs

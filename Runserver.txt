@@ -1,0 +1,33 @@
+import tkinter as tk
+import subprocess
+from tkinter import messagebox
+
+def start_node():
+    try:
+        subprocess.Popen(["node", "server.js"])
+        messagebox.showinfo("Thành công", "Đã chạy Node server.js")
+    except Exception as e:
+        messagebox.showerror("Lỗi", str(e))
+
+def start_pm2():
+    try:
+        subprocess.Popen(["pm2", "start", "server.js"])
+        messagebox.showinfo("Thành công", "Đã chạy bằng PM2")
+    except Exception as e:
+        messagebox.showerror("Lỗi", str(e))
+
+def stop_pm2():
+    try:
+        subprocess.Popen(["pm2", "stop", "server"])
+        messagebox.showinfo("Thành công", "Đã stop PM2")
+    except Exception as e:
+        messagebox.showerror("Lỗi", str(e))
+
+root = tk.Tk()
+root.title("Điều khiển Node Server")
+
+tk.Button(root, text="Chạy Node server.js", width=25, command=start_node).pack(pady=10)
+tk.Button(root, text="Chạy bằng PM2", width=25, command=start_pm2).pack(pady=10)
+tk.Button(root, text="Dừng PM2", width=25, command=stop_pm2).pack(pady=10)
+
+root.mainloop()

@@ -1,0 +1,40 @@
+/*
+  Sưu tầm bởi @nguyenvanhieuvn
+  Thực hành nhiều bài tập hơn tại https://luyencode.net/
+*/
+
+#include<stdio.h>
+#include<conio.h>
+
+//THAM LAM:
+//LEO BẬC THANG
+//LEO 1 BẬC OR LEO 2 BẬC
+//CÓ 5 BẬC THANG
+//CÔNG THỨC dp[i] = dp[i-1]+dp[i-2]
+//dp[i-1]: cách đi tới bậc trước
+//dp[i-2]: cách đi tới trước nữa
+//khởi tạo : dp[0] =1; dp[1]=1; chỉ có 01 cách
+
+
+
+int main()
+{
+  int n =5; //có 5 bậc thang
+  int dp[100]; //lưu trạng thái
+  //khởi tạo dp
+  dp[0]=1;
+  dp[1]=1;
+  //tính dp
+  for(int i=2; i<=n;i++){
+    dp[i]=dp[i-1]+dp[i-2]; //lưu tổng cách leo
+  }
+  //in trang thái
+  for(int i=0;i<=n; i++){
+    printf("dp[%d]=%d\n",i,dp[i]);
+  }
+  printf("\n So cach leo %d bac=%d\n",n,dp[n]);
+
+    return 0;
+}
+//có 8 cách để leo 5 bậc
+//bậc 5 = từ bậc 4 + bậc 3

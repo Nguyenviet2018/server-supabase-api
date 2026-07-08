@@ -1,0 +1,56 @@
+/*
+  Sưu tầm bởi @nguyenvanhieuvn
+  Thực hành nhiều bài tập hơn tại https://luyencode.net/
+*/
+
+#include<stdio.h>
+#include<conio.h>
+
+int max(int a, int b){
+    return a > b ? a:b;
+}
+
+int main()
+{
+
+    int w[]={2,3,4}; //số khối lượng của vật
+    int v[]={3,4,5}; //giá trị của vật;
+    int n=3; //có 3 vật;
+    int W = 5; //số kg không quá 5kg
+    int dp[10][10] = {0}; //ma trận lưu trạng thái
+    //chạy qua các vật n=3 vật
+    //j chạy từ j =0 đến 5 xét qua các vật chứa trong các túi 01, 02, 03, 04, 05kg
+    for(int i=1;i <=n;i++){
+        for(int j=0;j<=W; j++){
+            if(j<w[i-1]){
+                dp[i][j]=dp[i-1][j];
+            }else{
+                dp[i][j]=max(dp[i-1][j],dp[i-1][j-w[i-1]] + v[i-1]);
+
+            }
+        }
+    }
+    printf("Max value: %d",dp[n][W]);
+    //in ra trận kết quả
+    printf("Ma tran ket qua:\n\n");
+
+    for(int i=0;i<=n;i++){
+        for(int j=0;j<=W;j++){
+            printf("%3d",dp[i][j]);
+        }
+        printf("\n");
+    }
+    //truy vét xem chọn vật nào
+    printf("\n cac vat duoc chon:\n");
+    int j=W;
+
+    for(int i=n; i>0; i--){
+        //nếu khác nhau vật đc lấy
+        if(dp[i][j]!=dp[i-1][j]){
+            printf("Do vat %d: KL= %d GT=%d\n",i, w[i-1],v[i-1]);
+        }
+        //giảm sức chứa còn lại
+        j=j-w[i-1];
+    }
+    return 0;
+}

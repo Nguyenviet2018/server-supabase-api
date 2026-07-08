@@ -1,0 +1,756 @@
+Bước 1:
+graph[V][V]={
+        {0, 5, INF, 10},
+        {INF, 0, 3, INF},
+        {INF, INF, 0, 1},
+        {INF, INF, INF, 0},
+    };
+k=0;
+tamik = 0, tamkj = 0, tamij = 0;
+1.i=0 -> 4 
+  j=0 -> 4 
+i=0
+
+k=0
+i=0
+j=0
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+j=1
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 5
+ tamij = dist[i][j] = 5
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+j=2
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+j=3
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 10
+ tamij = dist[i][j] = 10
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+ 
+
+j=4
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 10
+ tamij = dist[i][j] = 10
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+ 
+k=0;
+i=1:
+ j=0:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=1:i=1
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 5
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=2:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 3
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+ 
+
+ j=3:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 10
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+i=2:
+ j=0:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=1:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 5
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=2:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=3:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 10
+ tamij = dist[i][j] = 1
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+i=3:
+ j=0:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=1:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 5
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=2:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=3:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 10
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+Bước 2:
+k=1;
+i=0:
+ j=0:
+ tamik = dist[i][k] = 5
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=1:
+ tamik = dist[i][k] = 5
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 5
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+k=1;
+i=0;
+j=2:
+ tamik = dist[i][k] = 5
+ tamkj = dist[k][j] = 3
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) đúng
+ dist[i][j] = dist[i][k] + dist[k][j]
+ tamik = dist[0][1] = 5
+ tamkj = dist[1][2] = 3
+ tamij = dist[0][2] = 8
+ dist[0][2] = 8
+
+j=3:
+ tamik = dist[i][k] = 5
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 10
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+i=1:
+ j=0:
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] =9999
+ tamij = dist[i][j] = 999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+j=1:
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] =0
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+j=2:
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 3
+ tamij = dist[i][j] = 3
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+j=3:
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+i=2:
+ j=0:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] =999
+ tamij = dist[i][j] = 999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+ j=1:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] =0
+ tamij = dist[i][j] = 999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+j=2:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 3
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ dist[i][j] = dist[i][k] + dist[k][j]
+
+
+j=3:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 1
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+
+i=3:
+ j=0:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] =9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+
+ j=1:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+
+j=2:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 3
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+
+j=3:
+ tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ 
+Bước 3:
+K=2
+i=0
+j=0
+ tamik = dist[i][k] = 8
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+ 
+
+j=1
+ tamik = dist[i][k] = 
+ tamkj = dist[k][j] = 
+ tamij = dist[i][j] = 
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+
+j=2
+ tamik = dist[i][k] = 8
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 8
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+
+j=3
+ tamik = dist[i][k] = 8
+ tamkj = dist[k][j] = 1
+ tamij = dist[i][j] = 10
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) đúng
+ dist[i][j] = dist[i][k] + dist[k][j]
+ tamik = dist[0][2] =8
+ tamkj = dist[2][3] =1
+ tamij = dist[0][3] =9
+
+i=1
+j=0
+ tamik = dist[i][k] = 3
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=1
+ tamik = dist[i][k] = 3
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=2
+ tamik = dist[i][k] = 3
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 3
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=3
+ tamik = dist[i][k] = 3
+ tamkj = dist[k][j] = 1
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) đúng
+dist[i][j] = dist[i][k] + dist[k][j]
+ tamik = dist[0][2] =3
+ tamkj = dist[2][3] =1
+ tamij = dist[0][3] =4
+
+i=2
+j=0
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=1
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=2
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=3
+ tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 1
+ tamij = dist[i][j] = 1
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+i=3
+j=0
+tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=1
+tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=2
+tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=3
+tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 1
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+Bước 4:
+k=3
+i=0
+j=0
+tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=1
+tamik = dist[i][k] = 9999
+ tamkj = dist[k][j] = 9
+ tamij = dist[i][j] = 5
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=2
+tamik = dist[i][k] = 9
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 8
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=3
+tamik = dist[i][k] = 9
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 9
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+i=1
+j=0
+tamik = dist[i][k] = 4
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=1
+tamik = dist[i][k] = 4
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=2
+tamik = dist[i][k] = 4
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 3
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=3
+tamik = dist[i][k] = 4
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 4
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+i=2
+j=0
+tamik = dist[i][k] = 1
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=1
+tamik = dist[i][k] = 1
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=2
+tamik = dist[i][k] = 1
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] =0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=3
+tamik = dist[i][k] = 1
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 1
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+i=3
+j=0
+tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=1
+tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+j=2
+tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 9999
+ tamij = dist[i][j] = 9999
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+
+j=3
+tamik = dist[i][k] = 0
+ tamkj = dist[k][j] = 0
+ tamij = dist[i][j] = 0
+
+if(dist[i][k] + dist[k][j] < dist[i][j]) sai
+
+
+kết quả:
+Ma tran duong di ngan nhat giua cac thanh pho(dinh)
+      0      5      8      9
+    INF      0      3      4
+    INF    INF      0      1
+    INF    INF    INF      0
+
+
+#include <stdio.h>
+#define INF 9999
+#define V 4
+//thuật toán floyd kiểm tra đi đường vòng có ngắn hơn không
+//B1 xem giá vé đi thẳng từ A->B là bao nhiêu?
+//B2 Nếu quá cảnh qua thành phố K (A->k->B) thì tổng tiền rẻ hơn bay thẳng không ?
+//Kiểm tra Nếu rẻ hơn, thuật toán sẽ cập nhật lại giá vé mới cho tuyến A->V
+
+#include <stdio.h>
+#define INF 9999
+#define V 4
+//thuật toán floyd kiểm tra đi đường vòng có ngắn hơn không
+//B1 xem giá vé đi thẳng từ A->B là bao nhiêu?
+//B2 Nếu quá cảnh qua thành phố K (A->k->B) thì tổng tiền rẻ hơn bay thẳng không ?
+//Kiểm tra Nếu rẻ hơn, thuật toán sẽ cập nhật lại giá vé mới cho tuyến A->V
+
+void floyd(int graph[V][V]){
+
+    int dist[V][V];
+    int i, j, k;
+
+    int tamik = 0, tamkj = 0, tamij = 0;
+
+    //khởi tạo ma trận kết quả bằng ma trận ban đầu
+    for(i=0; i < V ;i++){
+        for(j=0 ; j < V ;j++){
+            dist[i][j] = graph[i][j];
+        }
+    }
+    //k là đỉnh trung gian (điểm quá cảnh)
+    for(k=0; k < V ; k++){
+        //i là đỉnh xuất phát
+        for(i=0 ;i < V ;i++){
+            for(j =0 ; j< V ; j++){
+                //nếu đi qua đỉnh K mà ngắn hơn đi trực tiếp từ i -> j
+                tamik = dist[i][k];
+                tamkj = dist[k][j];
+                tamij = dist[i][j];
+
+        //  0     5    INF   10
+        //[0,0] [0,1] [0,2] [0,3]
+        
+        // INF   0      3    INF
+        //[1,0] [1,1] [1,2] [1,3]
+
+        // INF   INF    0    1
+        //[2,0] [2,1] [2,2] [2,3]
+
+        // INF   INF   INF    0
+        //[3,0] [3,1] [3,2] [3,3]
+
+             if(dist[i][k] + dist[k][j] < dist[i][j]){
+                tamik = dist[i][k];
+                tamkj = dist[k][j];
+
+                dist[i][j] = dist[i][k] + dist[k][j]; //cập nhật đường đi ngắn hơn
+                tamij = dist[i][j];
+             }
+            }
+        }
+    }
+    //in kết quả
+    printf("Ma tran duong di ngan nhat giua cac thanh pho(dinh)\n");
+    for(i =0; i < V ; i++){
+        for(j =0 ;j < V ;j++){
+            if(dist[i][j] == INF)
+                printf("%7s","INF");
+            else
+                printf("%7d",dist[i][j]);
+        }
+        printf("\n");
+    }
+
+}
+int main()
+{
+    //Ma trận trọng số ban đầu : chi phí đi qua lại giữa các thành phố
+    int graph[V][V]={
+        {0, 5, INF, 10},
+        {INF, 0, 3, INF},
+        {INF, INF, 0, 1},
+        {INF, INF, INF, 0},
+    };
+    floyd(graph);
+
+    return 0;
+}
+
+
+Dưới đây là code C++ thuật toán Floyd–Warshall chuẩn, dễ hiểu, tính đường đi ngắn nhất giữa mọi cặp đỉnh trong đồ thị.
+
+---
+
+✅ C++ – Floyd-Warshall Algorithm
+
+#include <bits/stdc++.h>
+using namespace std;
+
+const int INF = 1e9;
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+
+    // Khởi tạo ma trận khoảng cách
+    vector<vector<int>> dist(n + 1, vector<int>(n + 1, INF));
+
+    // Khoảng cách từ i đến i = 0
+    for (int i = 1; i <= n; i++) dist[i][i] = 0;
+
+    // Nhập cạnh
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        dist[u][v] = w;           // Nếu đồ thị vô hướng:
+        // dist[v][u] = w;        // bật dòng này
+    }
+
+    // Floyd–Warshall
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (dist[i][k] < INF && dist[k][j] < INF) {
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+                }
+            }
+        }
+    }
+
+    // Xuất kết quả
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (dist[i][j] == INF) cout << "INF ";
+            else cout << dist[i][j] << " ";
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}
+
+---
+
+📌 Giải thích nhanh
+
+dist[i][j] là khoảng cách ngắn nhất từ i → j.
+
+Ban đầu:
+
+dist[i][i] = 0
+
+Những cặp không có cạnh thì = INF
+
+Thuật toán thử từng đỉnh k làm trung gian:
+
+dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
+---
+
+📌 Input mẫu
+
+4 4
+1 2 5
+2 3 2
+1 4 9
+4 3 3
+
+📌 Output mẫu
+
+0 5 7 9
+INF 0 2 INF
+INF INF 0 INF
+INF INF 3 0
+
+---
+
+Nếu bạn muốn mình viết:
+
+✅ Floyd có truy vết đường đi (path reconstruction)
+✅ Floyd cho đồ thị vô hướng
+✅ Floyd tối ưu bộ nhớ
+→ Chỉ cần nói nhé!

@@ -1,0 +1,48 @@
+#include <stdio.h>
+
+// Hàm tìm kiếm nhị phân
+int binarySearch(int arr[], int n, int x) {
+    int left = 0;
+    int right = n - 1;
+
+    while (left <= right) {
+        // Tìm phần tử ở giữa
+        int mid = left + (right - left) / 2;
+
+        // Nếu phần tử ở giữa chính là số cần tìm
+        if (arr[mid] == x) {
+            return mid; // Trả về vị trí (chỉ số) tìm thấy
+        }
+
+        // Nếu số cần tìm lớn hơn số ở giữa, bỏ nửa bên trái
+        if (arr[mid] < x) {
+            left = mid + 1;
+        }
+        // Nếu số cần tìm nhỏ hơn số ở giữa, bỏ nửa bên phải
+        else {
+            right = mid - 1;
+        }
+    }
+
+    // Không tìm thấy phần tử trong mảng
+    return -1;
+}
+
+int main() {
+    int arr[] = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int x = 23; // Số cần tìm
+
+    int result = binarySearch(arr, n, x);
+
+    if (result != -1) {
+        printf("Tim thay so %d tai vi tri index: %d\n", x, result);
+    } else {
+        printf("Khong tim thay so %d trong mang.\n", x);
+    }
+
+    return 0;
+}
+/////////////
+
+

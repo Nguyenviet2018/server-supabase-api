@@ -1,0 +1,77 @@
+
+#include<stdio.h>
+#include<conio.h>
+#include<math.h>
+#define MAX 100
+
+void nhap (int a[], int &n)
+{
+    do
+    {
+        printf("\nNhap so phan tu: ");
+        scanf("%d", &n);
+        if(n <= 0 || n > MAX)
+        {
+            printf("\nSo phan tu khong hop le. Xin kiem tra lai !");
+        }
+    }while(n <= 0 || n > MAX);
+    for(int i = 0; i < n; i++)
+    {
+        printf("\nNhap a[%d]: ", i);
+        scanf("%d", &a[i]);
+    }
+}
+
+void xuat(int a[], int n)
+{
+    for(int i = 0; i < n; i++)
+    {
+        printf("%4d", a[i]);
+    }
+}
+//nếu vị trí đó chia hết cho 3 thì từ
+//vị trí đó được vị trí sau đè lên
+void DoiCho(int a[], int n, int ViTriDoi)
+{
+    int tam = a[ViTriDoi];
+    int xetA=0;
+    int xetB=0;
+    for(int i = ViTriDoi; i > 0; i--)
+    {
+        xetB=a[i-1];
+        xetA=a[i];
+        //vd: 1 2 6 4 3
+        //Bước 1: tam = 6
+        //dịch chuyển [0] 1 2 4 3
+        //a[0] =6 -> 6 ,1, 2, 4, 3
+        //tiếp tục khi xet 3 % 3 =0
+        // Bước 1:  tam=3 dịch chuyển tiếp [0] 6 1 2 4
+        //a[0] = 3 -> 3 6 1 2 4
+        a[i] = a[i - 1]; //dịch chuyển
+    }
+    a[0] = tam;
+}
+void DuaSoChiaHetCho3VeDau(int a[], int n)
+{
+    for(int i = 0; i < n; i++)
+    {
+        if(a[i] % 3 == 0)
+        {
+            DoiCho(a, n, i);
+        }
+    }
+}
+int main()
+{
+    int n;
+    int a[MAX];
+
+    nhap(a, n);
+    xuat(a, n);
+    DuaSoChiaHetCho3VeDau(a, n);
+    printf("\nDua tat ca so chia het cho 3 ve dau mang: ");
+    xuat(a, n);
+
+    getch();
+    return 0;
+}
