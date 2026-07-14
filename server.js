@@ -26,7 +26,7 @@ app.post('/attendance', async (req, res) => {
     res.status(200).json({ success: true, data });
 });
 // API lấy toàn bộ dữ liệu điểm danh
-app.get('/attendance', async (req, res) => {
+app.get('/app1/attendance', async (req, res) => {
     const { data, error } = await supabase
         .from('attendance')
         .select('*')
@@ -35,5 +35,5 @@ app.get('/attendance', async (req, res) => {
     if (error) return res.status(400).json({ error: error.message });
     res.json(data);
 });
-//app.listen(3000,'0.0.0.0', () => console.log('Server đang chạy tại http://localhost:3000'));
-module.exports = app;
+app.listen(3000,'0.0.0.0', () => console.log('Server đang chạy tại http://localhost:3000'));
+//module.exports = app;
