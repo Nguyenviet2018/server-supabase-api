@@ -90,6 +90,73 @@ app.post('/admin/add-user', authenticate, async (req, res) => {
     if (error) return res.status(500).send("Lỗi thêm user: " + error.message);
     res.status(201).send("Thêm user thành công");
 });
+//=======NHANVIEN========
+// 1. CREATE: Thêm nhân viên mới
+app.post('/nhanvien', async (req, res) => {
+    // Lấy dữ liệu từ body
+    const { manv, hoten, ngaysinh, gioitinh, sodt, email, diachi, ngayvaolam, trangthai, phongban_id,chucvu_id } = req.body;
+    
+    const { data, error } = await supabase
+        .from('nhanvien')
+        .insert([{ manv, hoten, ngaysinh, gioitinh, sodt, email, diachi, ngayvaolam, trangthai, phongban_id,chucvu_id }]);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.status(201).json({ message: "Thêm nhân viên thành công", data });
+});
+
+// 2. READ: Lấy danh sách (Đã xóa route trùng lặp)
+app.get('/nhanvien', async (req, res) => {
+    const { data, error } = await supabase
+        .from('nhanvien')
+        .select(`
+            *,
+            phongban (tenphongban),
+			chucvu (tenchucvu)
+        `); 
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+// 3. UPDATE: Sửa thông tin nhân viên
+app.put('/nhanvien/:id', async (req, res) => {
+    const { id } = req.params;
+    const updates = req.body; 
+
+    // QUAN TRỌNG: Loại bỏ nhanvien_id khỏi object update để tránh lỗi PRIMARY KEY
+    delete updates.nhanvien_id; 
+
+    const { data, error } = await supabase
+        .from('nhanvien')
+        .update(updates)
+        .eq('nhanvien_id', id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ message: "Cập nhật thành công", data });
+});
+
+// 4. DELETE: Xóa nhân viên
+app.delete('/nhanvien/:id', async (req, res) => {
+    const { id } = req.params;
+
+    const { error } = await supabase
+        .from('nhanvien')
+        .delete()
+        .eq('nhanvien_id', id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ message: "Xóa nhân viên thành công" });
+});
+//thêm phòng ban
+app.get('/phongban', async (req, res) => {
+    const { data, error } = await supabase.from('phongban').select('*');
+    res.json(data);
+});
+//get chức vụ
+app.get('/chucvu', async (req, res) => {
+    const { data, error } = await supabase.from('chucvu').select('*');
+    res.json(data);
+});
 
 //app.listen(process.env.PORT || 3001, () => console.log('Server Supabase chạy cổng 3001'));
 // Thay vì app.listen(3001, ...)
