@@ -420,27 +420,14 @@ app.delete('/chamcong/:id', async (req, res) => {
 //----chức năng chấm công cho app mobile 
 // Thêm API chấm công nhanh
 // 1. Cấu hình Multer để lưu file ảnh tạm thời vào thư mục "uploads" trên Server
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'chamcong_' + uniqueSuffix + path.extname(file.originalname));
-    }
+const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 } // Giới hạn file tối đa 5MB
 });
-const upload = multer({ storage: storage });
 
 const OFFICE_LAT = 10.7494445; 
 const OFFICE_LNG = 106.6922274;
-const ALLOWED_DISTANCE = 100;
-//10.7494445 106.6922274
-// Hàm tính khoảng cách giữa 2 tọa độ GPS (Công thức Haversine)
+
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371e3;
     const toRad = (angle) => (angle * Math.PI) / 180;
@@ -453,53 +440,42 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// 2. API Endpoint nhận dữ liệu chấm công từ App
-// 2. API Endpoint nhận dữ liệu chấm công từ App
 app.post('/api/chamcong/tudong', upload.single('hinhanh'), async (req, res) => {
     try {
         const { email, latitude, longitude } = req.body;
-        const imageFile = req.file; // File ảnh được gửi lên từ App
+        const imageFile = req.file; // File nằm trong RAM (buffer)
 
         console.log("----------------------------------------");
         console.log("📥 Nhận yêu cầu chấm công từ email:", email);
         console.log("📍 Tọa độ GPS:", latitude, longitude);
-        console.log("📸 File ảnh đính kèm:", imageFile ? imageFile.filename : "Không có");
+        console.log("📸 File ảnh đính kèm:", imageFile ? imageFile.originalname : "Không có");
 
-        // Kiểm tra dữ liệu đầu vào
         if (!email || !latitude || !longitude) {
             return res.status(400).json({ error: "Thiếu thông tin định danh hoặc vị trí!" });
         }
 
-        // Kiểm tra xem có file ảnh gửi lên không
         if (!imageFile) {
             return res.status(400).json({ error: "Thiếu ảnh xác thực khuôn mặt từ camera!" });
         }
 
-        // Kiểm tra khoảng cách GPS tại Server (Chống gian lận tọa độ giả mạo từ Client)
         const distance = calculateDistance(parseFloat(latitude), parseFloat(longitude), OFFICE_LAT, OFFICE_LNG);
         console.log("📏 Khoảng cách tính ở Server:", Math.round(distance), "mét");
 
         if (distance > 100) {
-            // Xóa file ảnh tạm nếu vị trí không hợp lệ để rác không đầy ổ cứng
-            if (fs.existsSync(imageFile.path)) fs.unlinkSync(imageFile.path);
             return res.status(400).json({ 
                 error: `Khoảng cách không hợp lệ! Bạn đang cách công ty ${Math.round(distance)}m (Giới hạn <= 100m).` 
             });
         }
 
-        // --- 1. UPLOAD ẢNH LÊN SUPABASE STORAGE ---
-        const fileBuffer = fs.readFileSync(imageFile.path);
+        // --- 1. UPLOAD ẢNH LÊN SUPABASE STORAGE TRỰC TIẾP TỪ BUFFER ---
         const fileName = `chamcong_${Date.now()}_${Math.round(Math.random() * 1000)}.jpg`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('cham-cong-images') // ⚠️ Đảm bảo tên bucket trên Supabase khớp hoàn toàn với tên này
-            .upload(fileName, fileBuffer, {
-                contentType: 'image/jpeg',
+        const { error: uploadError } = await supabase.storage
+            .from('cham-cong-images')
+            .upload(fileName, imageFile.buffer, {
+                contentType: imageFile.mimetype,
                 upsert: false
             });
-
-        // Xóa file tạm trên server ngay sau khi upload xong để giải phóng dung lượng ổ cứng
-        if (fs.existsSync(imageFile.path)) fs.unlinkSync(imageFile.path);
 
         if (uploadError) {
             console.error("❌ Lỗi upload ảnh lên Supabase Storage:", uploadError.message);
@@ -515,7 +491,6 @@ app.post('/api/chamcong/tudong', upload.single('hinhanh'), async (req, res) => {
         console.log("🔗 Đường dẫn Public URL của ảnh:", imageUrl);
 
         // --- 3. LƯU THÔNG TIN CHẤM CÔNG VÀO DATABASE ---
-        // (Đảm bảo bạn đã có bảng 'lich_su_cham_cong' trong Supabase với các cột tương ứng)
         const { error: dbError } = await supabase
             .from('lich_su_cham_cong')
             .insert([
@@ -533,7 +508,7 @@ app.post('/api/chamcong/tudong', upload.single('hinhanh'), async (req, res) => {
             return res.status(500).json({ error: "Lỗi lưu dữ liệu vào cơ sở dữ liệu: " + dbError.message });
         }
 
-        // --- 4. PHẢN HỒI THÀNH CÔNG VỀ CHO APP ---
+        // --- 4. PHẢN HỒI THÀNH CÔNG ---
         return res.status(200).json({
             success: true,
             message: `Chấm công thành công! Khoảng cách tới công ty: ${Math.round(distance)}m.`,
@@ -550,15 +525,16 @@ app.post('/api/chamcong/tudong', upload.single('hinhanh'), async (req, res) => {
         return res.status(500).json({ error: "Lỗi hệ thống nội bộ từ Server." });
     }
 });
+
 //app.listen(process.env.PORT || 3001, () => console.log('Server Supabase chạy cổng 3001'));
 // Thay vì app.listen(3001, ...)
 // Hãy xuất app ra để Vercel sử dụng:
 // --- KHỞI ĐỘNG SERVER (Hỗ trợ cả Localhost và Vercel Serverless) ---
-if (process.env.NODE_ENV !== 'production') {
-    const IP = '192.168.0.134'; 
-    const PORT = process.env.PORT || 3002;
-    app.listen(PORT, IP, () => {
-        console.log(`🚀 Server đang chạy tại http://${IP}:${PORT}`);
-    });
-}
+// if (process.env.NODE_ENV !== 'production') {
+//     const IP = '192.168.0.134'; 
+//     const PORT = process.env.PORT || 3002;
+//     app.listen(PORT, IP, () => {
+//         console.log(`🚀 Server đang chạy tại http://${IP}:${PORT}`);
+//     });
+// }
 module.exports = app;
