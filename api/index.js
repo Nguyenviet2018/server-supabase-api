@@ -93,17 +93,6 @@ app.post('/admin/add-user', authenticate, async (req, res) => {
 //=======NHANVIEN========
 // 1. CREATE: Thêm nhân viên mới
 
-// app.post('/nhanvien', async (req, res) => {
-//     // Lấy dữ liệu từ body
-//     const { manv, hoten, ngaysinh, gioitinh, sodt, email, diachi, ngayvaolam, trangthai, phongban_id,chucvu_id } = req.body;
-    
-//     const { data, error } = await supabase
-//         .from('nhanvien')
-//         .insert([{ manv, hoten, ngaysinh, gioitinh, sodt, email, diachi, ngayvaolam, trangthai, phongban_id,chucvu_id }]);
-
-//     if (error) return res.status(500).json({ error: error.message });
-//     res.status(201).json({ message: "Thêm nhân viên thành công", data });
-// });
 app.post('/nhanvien', async (req, res) => {
     const { manv, hoten, ngaysinh, gioitinh, sodt, email, diachi, ngayvaolam, trangthai, phongban_id, chucvu_id } = req.body;
     
@@ -224,6 +213,182 @@ app.get('/dashboard/stats', authenticate, async (req, res) => {
         console.error(err);
         res.status(500).send("Lỗi server");
     }
+});
+//====chi tiết nhân viên
+// Lấy danh sách lương của tất cả nhân viên hoặc theo nhân viên cụ thể
+app.get('/luong', async (req, res) => {
+    const { nhanvien_id } = req.query;
+    let query = supabase.from('luong').select('*, nhanvien (hoten, manv)');
+    
+    if (nhanvien_id) {
+        query = query.eq('nhanvien_id', nhanvien_id);
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+// Thêm bảng lương mới
+app.post('/luong', async (req, res) => {
+    const { nhanvien_id, thang, nam, songaycong, luongcoban, phucap, thuong, phat } = req.body;
+
+    const { data, error } = await supabase
+        .from('luong')
+        .insert([{ nhanvien_id, thang, nam, songaycong, luongcoban, phucap, thuong, phat }])
+        .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.status(201).json({ message: "Thêm bảng lương thành công", data });
+});
+
+// Cập nhật lương
+app.put('/luong/:id', async (req, res) => {
+    const { id } = req.params;
+    const updates = req.body;
+    delete updates.luong_id;
+
+    const { data, error } = await supabase
+        .from('luong')
+        .update(updates)
+        .eq('luong_id', id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ message: "Cập nhật lương thành công", data });
+});
+
+// Xóa bảng lương
+app.delete('/luong/:id', async (req, res) => {
+    const { id } = req.params;
+    const { error } = await supabase.from('luong').delete().eq('luong_id', id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ message: "Xóa bảng lương thành công" });
+});
+//---------------------
+// Lấy danh sách khen thưởng
+app.get('/khenthuong', async (req, res) => {
+    const { nhanvien_id } = req.query;
+    let query = supabase.from('khenthuong').select('*, nhanvien (hoten, manv)');
+
+    if (nhanvien_id) {
+        query = query.eq('nhanvien_id', nhanvien_id);
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+// Thêm khen thưởng
+app.post('/khenthuong', async (req, res) => {
+    const { nhanvien_id, ngay, lydo, sotien } = req.body;
+
+    const { data, error } = await supabase
+        .from('khenthuong')
+        .insert([{ nhanvien_id, ngay, lydo, sotien }])
+        .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.status(201).json({ message: "Thêm khen thưởng thành công", data });
+});
+
+// Xóa khen thưởng
+app.delete('/khenthuong/:id', async (req, res) => {
+    const { id } = req.params;
+    const { error } = await supabase.from('khenthuong').delete().eq('khenthuong_id', id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ message: "Xóa khen thưởng thành công" });
+});
+//------------
+// Lấy danh sách kỷ luật
+app.get('/kyluat', async (req, res) => {
+    const { nhanvien_id } = req.query;
+    let query = supabase.from('kyluat').select('*, nhanvien (hoten, manv)');
+
+    if (nhanvien_id) {
+        query = query.eq('nhanvien_id', nhanvien_id);
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+// Thêm kỷ luật
+app.post('/kyluat', async (req, res) => {
+    const { nhanvien_id, ngay, lydo, mucphat } = req.body;
+
+    const { data, error } = await supabase
+        .from('kyluat')
+        .insert([{ nhanvien_id, ngay, lydo, mucphat }])
+        .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.status(201).json({ message: "Thêm kỷ luật thành công", data });
+});
+
+// Xóa kỷ luật
+app.delete('/kyluat/:id', async (req, res) => {
+    const { id } = req.params;
+    const { error } = await supabase.from('kyluat').delete().eq('kyluat_id', id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ message: "Xóa kỷ luật thành công" });
+});
+//----------
+// Lấy danh sách chấm công (có thể lọc theo nhân viên hoặc theo ngày)
+app.get('/chamcong', async (req, res) => {
+    const { nhanvien_id, ngay } = req.query;
+    let query = supabase.from('chamcong').select('*, nhanvien (hoten, manv)');
+
+    if (nhanvien_id) {
+        query = query.eq('nhanvien_id', nhanvien_id);
+    }
+    if (ngay) {
+        query = query.eq('ngay', ngay);
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+// Thêm/Điểm danh chấm công mới
+app.post('/chamcong', async (req, res) => {
+    const { nhanvien_id, ngay, trangthai } = req.body;
+
+    const { data, error } = await supabase
+        .from('chamcong')
+        .insert([{ nhanvien_id, ngay, trangthai }])
+        .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.status(201).json({ message: "Chấm công thành công", data });
+});
+
+// Cập nhật trạng thái chấm công
+app.put('/chamcong/:id', async (req, res) => {
+    const { id } = req.params;
+    const { trangthai } = req.body;
+
+    const { data, error } = await supabase
+        .from('chamcong')
+        .update({ trangthai })
+        .eq('chamcong_id', id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ message: "Cập nhật chấm công thành công", data });
+});
+
+// Xóa bản ghi chấm công
+app.delete('/chamcong/:id', async (req, res) => {
+    const { id } = req.params;
+    const { error } = await supabase.from('chamcong').delete().eq('chamcong_id', id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ message: "Xóa chấm công thành công" });
 });
 
 //app.listen(process.env.PORT || 3001, () => console.log('Server Supabase chạy cổng 3001'));
