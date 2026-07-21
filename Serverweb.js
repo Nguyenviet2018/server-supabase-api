@@ -1,9 +1,11 @@
+//server.js
 require('dotenv').config();
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+
 
 const app = express();
 app.use(cors());
@@ -35,20 +37,42 @@ app.post('/register', async (req, res) => {
     res.status(201).send({ message: "Đăng ký thành công!", token });
 });
 
+// app.post('/login', async (req, res) => {
+//     const { email, password } = req.body;
+    
+//     const { data: users, error } = await supabase.from('users').select('*').eq('email', email);
+//     if (error || users.length === 0) return res.status(401).send("Email hoặc mật khẩu không chính xác");
+    
+//     const user = users[0];
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) return res.status(401).send("Email hoặc mật khẩu không chính xác");
+
+//     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET_KEY, { expiresIn: '1h' });
+//     res.status(200).send({ token, role: user.role, message: "Đăng nhập thành công" });
+// });
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     
     const { data: users, error } = await supabase.from('users').select('*').eq('email', email);
-    if (error || users.length === 0) return res.status(401).send("Email hoặc mật khẩu không chính xác");
+    if (error || users.length === 0) {
+        return res.status(401).json({ error: "Email hoặc mật khẩu không chính xác" });
+    }
     
     const user = users[0];
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).send("Email hoặc mật khẩu không chính xác");
+    if (!isMatch) {
+        return res.status(401).json({ error: "Email hoặc mật khẩu không chính xác" });
+    }
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET_KEY, { expiresIn: '1h' });
-    res.status(200).send({ token, role: user.role, message: "Đăng nhập thành công" });
+    
+    // Dùng .json thay vì .send để trả về cấu trúc chuẩn JSON cho React Native
+    return res.status(200).json({ 
+        token, 
+        role: user.role, 
+        message: "Đăng nhập thành công" 
+    });
 });
-
 // Middleware xác thực
 const authenticate = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
@@ -390,6 +414,105 @@ app.delete('/chamcong/:id', async (req, res) => {
     if (error) return res.status(500).json({ error: error.message });
     res.json({ message: "Xóa chấm công thành công" });
 });
+//----chức năng chấm công cho app mobile 
+// Thêm API chấm công nhanh
+const OFFICE_LAT = 10.7494445; 
+const OFFICE_LNG = 106.6922274;
+const ALLOWED_DISTANCE = 100;
+//10.7494445 106.6922274
+// Hàm tính khoảng cách giữa 2 tọa độ GPS (Công thức Haversine)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const toRad = (angle) => (angle * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+app.post('/api/chamcong/tudong', async (req, res) => {
+    const { email, latitude, longitude, hinhanh } = req.body;
+
+    if (!email || latitude === undefined || longitude === undefined) {
+        return res.status(400).json({ error: "Thiếu thông tin email hoặc tọa độ GPS từ thiết bị!" });
+    }
+
+    try {
+        // 1. Kiểm tra khoảng cách GPS
+        const distance = calculateDistance(latitude, longitude, OFFICE_LAT, OFFICE_LNG);
+        console.log("📍 Khoảng cách thực tế:", Math.round(distance), "mét");
+
+        if (distance > ALLOWED_DISTANCE) {
+            return res.status(400).json({ 
+                error: `Bạn đang ở quá xa công ty (${Math.round(distance)}m). Vui lòng di chuyển vào trong phạm vi ${ALLOWED_DISTANCE}m để chấm công!` 
+            });
+        }
+
+        // 2. Tra cứu user và nhân viên trong database
+        const { data: userRecord, error: errUser } = await supabase
+            .from('users')
+            .select('id, email')
+            .eq('email', email)
+            .single();
+
+        if (errUser || !userRecord) return res.status(404).json({ error: "Không tìm thấy tài khoản người dùng!" });
+
+        const { data: nhanVien, error: errNV } = await supabase
+            .from('nhanvien')
+            .select('nhanvien_id, hoten')
+            .eq('user_id', userRecord.id)
+            .single();
+
+        if (errNV || !nhanVien) return res.status(404).json({ error: "Tài khoản chưa được liên kết với hồ sơ nhân viên!" });
+
+        const nhanvien_id = nhanVien.nhanvien_id;
+        const ngayHienTai = new Date().toISOString().split('T')[0];
+
+        // 3. Kiểm tra xem hôm nay đã chấm công chưa
+        const { data: existingCC } = await supabase
+            .from('chamcong')
+            .select('*')
+            .eq('nhanvien_id', nhanvien_id)
+            .eq('ngay', ngayHienTai);
+
+        if (existingCC && existingCC.length > 0) {
+            return res.status(400).json({ error: "Hôm nay bạn đã thực hiện chấm công rồi!" });
+        }
+
+        // 4. Xử lý thời gian
+        const currentHour = new Date().getHours();
+        let trangThai = 'Đi làm';
+        if (currentHour >= 17) trangThai = 'nghỉ không phép';
+        else if (currentHour >= 8) trangThai = 'đi trễ';
+
+        // 5. Lưu vào database (Vì đã qua vòng kiểm tra <= 100m nên cột hinhanh chắc chắn nhận giá trị "Đã chụp")
+        const { error: errInsert } = await supabase
+            .from('chamcong')
+            .insert([{ 
+                nhanvien_id, 
+                ngay: ngayHienTai, 
+                trangthai: trangThai,
+                hinhanh: hinhanh // Nhận chuỗi "Đã chụp" từ client gửi lên
+            }]);
+
+        if (errInsert) return res.status(500).json({ error: errInsert.message });
+
+        res.json({ 
+            message: `Chấm công thành công! Trạng thái: ${trangThai}`, 
+            trangthai: trangThai,
+            khoang_cach: Math.round(distance),
+            hinhanh: hinhanh,
+            ngay: ngayHienTai 
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 //app.listen(process.env.PORT || 3001,'0.0.0.0', () => console.log('Server Supabase chạy cổng 3001'));
 const IP = '192.168.0.134'; // Thay bằng IP máy tính của bạn
 const PORT = 3002;
