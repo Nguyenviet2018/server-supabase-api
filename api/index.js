@@ -553,4 +553,12 @@ app.post('/api/chamcong/tudong', upload.single('hinhanh'), async (req, res) => {
 //app.listen(process.env.PORT || 3001, () => console.log('Server Supabase chạy cổng 3001'));
 // Thay vì app.listen(3001, ...)
 // Hãy xuất app ra để Vercel sử dụng:
+// --- KHỞI ĐỘNG SERVER (Hỗ trợ cả Localhost và Vercel Serverless) ---
+if (process.env.NODE_ENV !== 'production') {
+    const IP = '192.168.0.134'; 
+    const PORT = process.env.PORT || 3002;
+    app.listen(PORT, IP, () => {
+        console.log(`🚀 Server đang chạy tại http://${IP}:${PORT}`);
+    });
+}
 module.exports = app;
