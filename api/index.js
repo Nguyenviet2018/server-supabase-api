@@ -6,6 +6,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -416,6 +419,23 @@ app.delete('/chamcong/:id', async (req, res) => {
 });
 //----chức năng chấm công cho app mobile 
 // Thêm API chấm công nhanh
+// 1. Cấu hình Multer để lưu file ảnh tạm thời vào thư mục "uploads" trên Server
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'chamcong_' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
 const OFFICE_LAT = 10.7494445; 
 const OFFICE_LNG = 106.6922274;
 const ALLOWED_DISTANCE = 100;
@@ -433,83 +453,101 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-app.post('/api/chamcong/tudong', async (req, res) => {
-    const { email, latitude, longitude, hinhanh } = req.body;
-
-    if (!email || latitude === undefined || longitude === undefined) {
-        return res.status(400).json({ error: "Thiếu thông tin email hoặc tọa độ GPS từ thiết bị!" });
-    }
-
+// 2. API Endpoint nhận dữ liệu chấm công từ App
+// 2. API Endpoint nhận dữ liệu chấm công từ App
+app.post('/api/chamcong/tudong', upload.single('hinhanh'), async (req, res) => {
     try {
-        // 1. Kiểm tra khoảng cách GPS
-        const distance = calculateDistance(latitude, longitude, OFFICE_LAT, OFFICE_LNG);
-        console.log("📍 Khoảng cách thực tế:", Math.round(distance), "mét");
+        const { email, latitude, longitude } = req.body;
+        const imageFile = req.file; // File ảnh được gửi lên từ App
 
-        if (distance > ALLOWED_DISTANCE) {
+        console.log("----------------------------------------");
+        console.log("📥 Nhận yêu cầu chấm công từ email:", email);
+        console.log("📍 Tọa độ GPS:", latitude, longitude);
+        console.log("📸 File ảnh đính kèm:", imageFile ? imageFile.filename : "Không có");
+
+        // Kiểm tra dữ liệu đầu vào
+        if (!email || !latitude || !longitude) {
+            return res.status(400).json({ error: "Thiếu thông tin định danh hoặc vị trí!" });
+        }
+
+        // Kiểm tra xem có file ảnh gửi lên không
+        if (!imageFile) {
+            return res.status(400).json({ error: "Thiếu ảnh xác thực khuôn mặt từ camera!" });
+        }
+
+        // Kiểm tra khoảng cách GPS tại Server (Chống gian lận tọa độ giả mạo từ Client)
+        const distance = calculateDistance(parseFloat(latitude), parseFloat(longitude), OFFICE_LAT, OFFICE_LNG);
+        console.log("📏 Khoảng cách tính ở Server:", Math.round(distance), "mét");
+
+        if (distance > 100) {
+            // Xóa file ảnh tạm nếu vị trí không hợp lệ để rác không đầy ổ cứng
+            if (fs.existsSync(imageFile.path)) fs.unlinkSync(imageFile.path);
             return res.status(400).json({ 
-                error: `Bạn đang ở quá xa công ty (${Math.round(distance)}m). Vui lòng di chuyển vào trong phạm vi ${ALLOWED_DISTANCE}m để chấm công!` 
+                error: `Khoảng cách không hợp lệ! Bạn đang cách công ty ${Math.round(distance)}m (Giới hạn <= 100m).` 
             });
         }
 
-        // 2. Tra cứu user và nhân viên trong database
-        const { data: userRecord, error: errUser } = await supabase
-            .from('users')
-            .select('id, email')
-            .eq('email', email)
-            .single();
+        // --- 1. UPLOAD ẢNH LÊN SUPABASE STORAGE ---
+        const fileBuffer = fs.readFileSync(imageFile.path);
+        const fileName = `chamcong_${Date.now()}_${Math.round(Math.random() * 1000)}.jpg`;
 
-        if (errUser || !userRecord) return res.status(404).json({ error: "Không tìm thấy tài khoản người dùng!" });
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('cham-cong-images') // ⚠️ Đảm bảo tên bucket trên Supabase khớp hoàn toàn với tên này
+            .upload(fileName, fileBuffer, {
+                contentType: 'image/jpeg',
+                upsert: false
+            });
 
-        const { data: nhanVien, error: errNV } = await supabase
-            .from('nhanvien')
-            .select('nhanvien_id, hoten')
-            .eq('user_id', userRecord.id)
-            .single();
+        // Xóa file tạm trên server ngay sau khi upload xong để giải phóng dung lượng ổ cứng
+        if (fs.existsSync(imageFile.path)) fs.unlinkSync(imageFile.path);
 
-        if (errNV || !nhanVien) return res.status(404).json({ error: "Tài khoản chưa được liên kết với hồ sơ nhân viên!" });
-
-        const nhanvien_id = nhanVien.nhanvien_id;
-        const ngayHienTai = new Date().toISOString().split('T')[0];
-
-        // 3. Kiểm tra xem hôm nay đã chấm công chưa
-        const { data: existingCC } = await supabase
-            .from('chamcong')
-            .select('*')
-            .eq('nhanvien_id', nhanvien_id)
-            .eq('ngay', ngayHienTai);
-
-        if (existingCC && existingCC.length > 0) {
-            return res.status(400).json({ error: "Hôm nay bạn đã thực hiện chấm công rồi!" });
+        if (uploadError) {
+            console.error("❌ Lỗi upload ảnh lên Supabase Storage:", uploadError.message);
+            return res.status(500).json({ error: "Không thể tải ảnh lên hệ thống lưu trữ: " + uploadError.message });
         }
 
-        // 4. Xử lý thời gian
-        const currentHour = new Date().getHours();
-        let trangThai = 'Đi làm';
-        if (currentHour >= 17) trangThai = 'nghỉ không phép';
-        else if (currentHour >= 8) trangThai = 'đi trễ';
+        // --- 2. LẤY PUBLIC URL CỦA ẢNH ---
+        const { data: publicUrlData } = supabase.storage
+            .from('cham-cong-images')
+            .getPublicUrl(fileName);
 
-        // 5. Lưu vào database (Vì đã qua vòng kiểm tra <= 100m nên cột hinhanh chắc chắn nhận giá trị "Đã chụp")
-        const { error: errInsert } = await supabase
-            .from('chamcong')
-            .insert([{ 
-                nhanvien_id, 
-                ngay: ngayHienTai, 
-                trangthai: trangThai,
-                hinhanh: hinhanh // Nhận chuỗi "Đã chụp" từ client gửi lên
-            }]);
+        const imageUrl = publicUrlData.publicUrl;
+        console.log("🔗 Đường dẫn Public URL của ảnh:", imageUrl);
 
-        if (errInsert) return res.status(500).json({ error: errInsert.message });
+        // --- 3. LƯU THÔNG TIN CHẤM CÔNG VÀO DATABASE ---
+        // (Đảm bảo bạn đã có bảng 'lich_su_cham_cong' trong Supabase với các cột tương ứng)
+        const { error: dbError } = await supabase
+            .from('lich_su_cham_cong')
+            .insert([
+                { 
+                    email: email, 
+                    latitude: parseFloat(latitude), 
+                    longitude: parseFloat(longitude), 
+                    hinh_anh_url: imageUrl, 
+                    thoi_gian: new Date() 
+                }
+            ]);
 
-        res.json({ 
-            message: `Chấm công thành công! Trạng thái: ${trangThai}`, 
-            trangthai: trangThai,
-            khoang_cach: Math.round(distance),
-            hinhanh: hinhanh,
-            ngay: ngayHienTai 
+        if (dbError) {
+            console.error("❌ Lỗi lưu Database:", dbError.message);
+            return res.status(500).json({ error: "Lỗi lưu dữ liệu vào cơ sở dữ liệu: " + dbError.message });
+        }
+
+        // --- 4. PHẢN HỒI THÀNH CÔNG VỀ CHO APP ---
+        return res.status(200).json({
+            success: true,
+            message: `Chấm công thành công! Khoảng cách tới công ty: ${Math.round(distance)}m.`,
+            data: {
+                email: email,
+                time: new Date(),
+                distance: Math.round(distance),
+                imageUrl: imageUrl
+            }
         });
 
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("❌ Lỗi xử lý Server:", err);
+        return res.status(500).json({ error: "Lỗi hệ thống nội bộ từ Server." });
     }
 });
 //app.listen(process.env.PORT || 3001, () => console.log('Server Supabase chạy cổng 3001'));
